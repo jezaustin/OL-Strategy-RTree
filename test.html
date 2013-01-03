@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Openlayers Test</title>
+    <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript" src="rtree.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        var map = new OpenLayers.Map("demoMap"),
+        fromProjection = new OpenLayers.Projection("EPSG:4326"),
+        toProjection = new OpenLayers.Projection("EPSG:900913")
+
+
+        map.addLayer(new OpenLayers.Layer.OSM());
+        //map.zoomToMaxExtent();
+        map.setCenter(
+          new OpenLayers.LonLat(13.41,52.52).
+            transform(fromProjection, toProjection), 15);
+        var layer;
+        layer = new OpenLayers.Layer.Vector({
+          strategies: [
+            new OpenLayers.Strategy.RTree({
+              indexedListeners: [{
+                source: layer,
+                event: 'featuresadded',
+                listener: function (event) {
+                  window.alert('hello world');
+                }
+              }]
+            })
+          ],
+          projection: fromProjection
+        });
+        map.addLayer(layer);
+        layer.addFeatures([
+          new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(13.5,52.5).transform(fromProjection, toProjection)),
+          new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(13.4,52.54).transform(fromProjection, toProjection)),
+          new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(13.6,52.5).transform(fromProjection, toProjection))
+        ]);
+
+        map.zoomToExtent(layer.getDataExtent());
+      });
+    </script>
+
+  </head>
+  <body>
+    <h1>Openlayers Test</h1>
+    <div id="demoMap" style="height: 250px;"></div>
+  </body>
+</html>
