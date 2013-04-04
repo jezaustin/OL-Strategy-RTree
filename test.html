@@ -10,28 +10,31 @@
       $(function() {
         var map = new OpenLayers.Map("demoMap"),
         fromProjection = new OpenLayers.Projection("EPSG:4326"),
-        toProjection = new OpenLayers.Projection("EPSG:900913")
-
+        toProjection = new OpenLayers.Projection("EPSG:900913");
 
         map.addLayer(new OpenLayers.Layer.OSM());
         //map.zoomToMaxExtent();
         map.setCenter(
           new OpenLayers.LonLat(13.41,52.52).
             transform(fromProjection, toProjection), 15);
-        var layer;
-        layer = new OpenLayers.Layer.Vector({
-          strategies: [
-            new OpenLayers.Strategy.RTree({
-              indexedListeners: [{
-                source: layer,
-                event: 'featuresadded',
-                listener: function (event) {
-                  window.alert('hello world');
-                }
-              }]
-            })
-          ],
-          projection: fromProjection
+        var layer = new OpenLayers.Layer.Vector('testlayer', {
+            strategies: [new OpenLayers.Strategy.RTree({
+                indexedListeners: [{
+                    source: layer,
+                    event: 'featuresadded',
+                    listener: function (event) {
+                        window.alert('hello world');
+                        var P =
+                        this.Tree.search(new OpenLayers.Geometry.LinearRing([
+                           new OpenLayers.Geometry.Point(13.45,52.45).transform(fromProjection, toProjection),
+                           new OpenLayers.Geometry.Point(13.65,52.45).transform(fromProjection, toProjection),
+                           new OpenLayers.Geometry.Point(13.45,52.65).transform(fromProjection, toProjection)
+                        ]));
+                        window.alert(P);
+                    }
+                }]
+            })],
+            projection: fromProjection
         });
         map.addLayer(layer);
         layer.addFeatures([
